@@ -62,7 +62,7 @@ public class ColumnService extends AbstractService<
 
     @Override
     public ColumnDto get(Long id) {
-        ProjectColumn byId = repository.findById(id).orElseThrow();
+        ProjectColumn byId = repository.findById(id).get();
         return mapper.toDto(byId);
     }
 

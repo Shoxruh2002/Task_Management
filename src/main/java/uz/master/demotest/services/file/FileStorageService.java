@@ -1,7 +1,6 @@
 package uz.master.demotest.services.file;
 
 
-
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -48,10 +47,10 @@ public class FileStorageService {
     public String store(@NonNull MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String generatedName = "%s.%s".formatted(System.currentTimeMillis(), extension);
+        String generatedName = String.format("%s.%s", System.currentTimeMillis(), extension);
         Path rootPath = Paths.get(UNICORN_UPLOADS_B_4_LIB, generatedName);
         Files.copy(file.getInputStream(), rootPath, StandardCopyOption.REPLACE_EXISTING);
-        Uploads uploadedFile = new Uploads(originalFilename,generatedName,file.getContentType(),(UNICORN_UPLOADS_B_4_LIB+ generatedName),file.getSize());
+        Uploads uploadedFile = new Uploads(originalFilename, generatedName, file.getContentType(), (UNICORN_UPLOADS_B_4_LIB + generatedName), file.getSize());
         repository.save(uploadedFile);
         return generatedName;
     }
@@ -59,7 +58,7 @@ public class FileStorageService {
 
     public UploadsDto loadResource(@NonNull String fileName) throws NoSuchFileException {
         Optional<Uploads> uploads = repository.findByGeneratedName(fileName);
-        if (uploads.isEmpty())throw new NoSuchFileException("not found");
+        if (!uploads.isPresent()) throw new NoSuchFileException("not found");
         FileSystemResource resource = new FileSystemResource(UNICORN_UPLOADS_B_4_LIB + fileName);
         return UploadsDto.builder().resource(resource).originalName(uploads.get().getOriginalName()).newName(uploads.get().getGeneratedName()).contentType(uploads.get().getContentType()).size(uploads.get().getSize()).build();
     }

@@ -81,7 +81,7 @@ public class AuthUserService
 
     public Void delete(String username, String password) {
         Optional<AuthUser> user = repository.getAuthUsersByUsernameAndDeletedFalse(username);
-        if (user.isEmpty() || !encoder.matches(password, user.get().getPassword()))
+        if (!user.isPresent() || !encoder.matches(password, user.get().getPassword()))
             throw new NotFoundException("bad Credential");
         repository.deleteUser(user.get().getId(), user.get().getUsername() + "" + System.currentTimeMillis());
         return null;
@@ -90,7 +90,7 @@ public class AuthUserService
 
     @Override
     public Void update(AuthUserUpdateDto dto) {
-        repository.updateUser(dto.getFirstName(),dto.getLastName(),dto.getEmail(),dto.getPhone(),dto.getUsername(),dto.getPhotoPath(),dto.getId());
+        repository.updateUser(dto.getFirstName(), dto.getLastName(), dto.getEmail(), dto.getPhone(), dto.getUsername(), dto.getPhotoPath(), dto.getId());
         return null;
     }
 
@@ -105,17 +105,17 @@ public class AuthUserService
     }
 
     public AuthDto get(Long id) {
-        AuthUser user = repository.findByIdAndDeletedFalse(id).orElseThrow(() -> {
+        Optional<AuthUser> optionalAuthUser = repository.findByIdAndDeletedFalse(id);
+        if (!optionalAuthUser.isPresent()) {
             throw new UsernameNotFoundException("user Not Found");
-        });
-
-        return mapper.toDto(user);
+        }
+        return mapper.toDto(optionalAuthUser.get());
     }
 
 
     public AuthUser get(String username) {
         Optional<AuthUser> authUserByUsername = repository.getAuthUsersByUsernameAndDeletedFalse(username);
-        if (authUserByUsername.isEmpty()) {
+        if (!authUserByUsername.isPresent()) {
             throw new NotFoundException("username not found");
         }
         return authUserByUsername.get();
@@ -145,7 +145,7 @@ public class AuthUserService
     }
 
 
-    public void savePhoto(String store,Long id) {
-        repository.image(store,id);
+    public void savePhoto(String store, Long id) {
+        repository.image(store, id);
     }
 }
