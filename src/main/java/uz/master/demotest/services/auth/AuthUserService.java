@@ -133,7 +133,7 @@ public class AuthUserService
     }
 
     public boolean checkToken(String token) {
-        return tokenRepository.findByPrivateToken(token).isEmpty();
+        return !tokenRepository.findByPrivateToken(token).isPresent();
 
     }
 
